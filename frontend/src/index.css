@@ -3,402 +3,538 @@
 @tailwind utilities;
 
 /* ==========================================================
-   NeuroScan Design System v1
+   NeuroScan XAI
+   Light Clinical + Ice Blue
    ========================================================== */
 
 :root {
-  --bg: #0a0e17;
-  --bg-secondary: #0f1523;
+  --bg: #f3f8fc;
+  --bg-secondary: #edf6fb;
 
-  --surface: #131b2b;
-  --surface-2: #1a2335;
-  --surface-3: #202c42;
+  --surface: #ffffff;
+  --surface-2: #f7fbfe;
+  --surface-3: #edf7fc;
 
-  --primary: #5b7cff;
-  --primary-light: #7f97ff;
-  --primary-dark: #4366f6;
+  --primary: #0284c7;
+  --primary-light: #38bdf8;
+  --primary-soft: #7dd3fc;
 
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --purple: #8b5cf6;
+  --text: #102a3a;
+  --text-secondary: #456477;
+  --muted: #718a99;
 
-  --text: #f8fafc;
-  --muted: #9ca9bd;
+  --border: #d8e8f1;
 
-  --border: rgba(255,255,255,.08);
-
-  --shadow-lg:
-    0 12px 35px rgba(0,0,0,.45);
-
-  --shadow-card:
-    0 10px 25px rgba(0,0,0,.35);
-
-  --radius-xl:20px;
-  --radius-2xl:28px;
+  --success: #159669;
+  --warning: #d29a22;
+  --danger: #dc5d6b;
 }
+
+
+/* ==========================================================
+   BASE
+   ========================================================== */
 
 @layer base {
 
-*{
-  @apply border-transparent;
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--bg);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+
+    color: var(--text);
+
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+
+    font-size: 15px;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+
+    overflow-x: hidden;
+
+    background:
+      radial-gradient(
+        circle at 8% 0%,
+        rgba(56, 189, 248, 0.11),
+        transparent 27%
+      ),
+      radial-gradient(
+        circle at 92% 10%,
+        rgba(125, 211, 252, 0.12),
+        transparent 25%
+      ),
+      linear-gradient(
+        180deg,
+        #f8fcff 0%,
+        #f3f8fc 48%,
+        #edf5fa 100%
+      );
+
+    background-attachment: fixed;
+  }
+
+
+  /* Very subtle clinical grid */
+
+  body::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    z-index: -1;
+    pointer-events: none;
+
+    background-image:
+      linear-gradient(
+        rgba(2, 132, 199, 0.025) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        rgba(2, 132, 199, 0.025) 1px,
+        transparent 1px
+      );
+
+    background-size: 52px 52px;
+
+    mask-image:
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.65),
+        transparent 90%
+      );
+  }
+
+
+  ::selection {
+    background: rgba(56, 189, 248, 0.25);
+    color: #0c4a6e;
+  }
+
+
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #edf5fa;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #b8d5e4;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #91bdd2;
+  }
+
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--text);
+    letter-spacing: -0.025em;
+  }
+
 }
 
-html{
-  scroll-behavior:smooth;
-}
 
-body {
-  @apply text-slate-100;
-
-  margin: 0;
-  min-height: 100vh;
-  color: var(--text);
-
-  /* Professional Medical Background */
-  background:
-    radial-gradient(circle at 0% 0%,
-      rgba(91,124,255,.18) 0%,
-      transparent 32%),
-
-    radial-gradient(circle at 100% 100%,
-      rgba(91,124,255,.12) 0%,
-      transparent 28%),
-
-    radial-gradient(circle at 50% 20%,
-      rgba(99,102,241,.08) 0%,
-      transparent 45%),
-
-    linear-gradient(
-      180deg,
-      #070C16 0%,
-      #0B1322 35%,
-      #101827 100%
-    );
-
-  background-attachment: fixed;
-
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    sans-serif;
-
-  -webkit-font-smoothing: antialiased;
-
-  overflow-x: hidden;
-}
-body::before {
-  content: "";
-
-  position: fixed;
-  inset: 0;
-
-  pointer-events: none;
-
-  opacity: .04;
-
-  background-image:
-    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
-
-  background-size: 60px 60px;
-
-  mask-image: radial-gradient(circle, black 35%, transparent 100%);
-}
-
-::selection{
-  background:#5b7cff;
-  color:white;
-}
-
-::-webkit-scrollbar{
-  width:8px;
-}
-
-::-webkit-scrollbar-track{
-  background:transparent;
-}
-
-::-webkit-scrollbar-thumb{
-
-  background:#2b3855;
-
-  border-radius:999px;
-}
-
-::-webkit-scrollbar-thumb:hover{
-
-  background:#4a5f95;
-}
-
-h1,h2,h3,h4{
-
-  letter-spacing:-.03em;
-
-  font-weight:700;
-
-  color:white;
-}
-
-button{
-
-  transition:
-      all .25s ease;
-}
-
-img{
-
-  user-select:none;
-}
-}
+/* ==========================================================
+   GENERAL SURFACES
+   ========================================================== */
 
 @layer components {
 
-/* ===========================
-   SURFACES
-=========================== */
+  .surface {
+    border: 1px solid rgba(118, 166, 190, 0.23);
 
-.surface{
+    border-radius: 18px;
 
-  background: rgba(18, 27, 43, 0.78);
-
-  backdrop-filter:blur(16px);
-
-  border:1px solid rgba(255,255,255,.08);
-
-  border-radius:var(--radius-xl);
-
-  box-shadow:
-    0 10px 35px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.03);
-}
-
-.surface-hover{
-
-  @apply surface;
-
-  transition:all .25s ease;
-}
-
-.btn-primary:hover{
-
-  transform:translateY(-3px);
-
-  filter:brightness(1.05);
-
-  box-shadow:
-      0 20px 40px rgba(91,124,255,.45);
-}
-.btn-primary:active{
-    transform:scale(.98);
-}
-
-/* ===========================
-   BUTTONS
-=========================== */
-
-.btn-primary{
-
-  display:inline-flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  gap:.6rem;
-
-  padding:.9rem 1.5rem;
-
-  border-radius:16px;
-
-  color:white;
-
-  font-weight:600;
-
-  background:
+    background:
       linear-gradient(
-      135deg,
-      var(--primary),
-      var(--primary-light)
+        145deg,
+        rgba(255, 255, 255, 0.98),
+        rgba(247, 251, 254, 0.98)
       );
 
-  box-shadow:
-      0 10px 30px rgba(91,124,255,.35);
+    box-shadow:
+      0 15px 40px rgba(27, 83, 113, 0.07),
+      0 2px 7px rgba(27, 83, 113, 0.025);
+
+    backdrop-filter: blur(18px);
+  }
+
+
+  .surface-hover {
+    @apply surface;
+
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+
+  .surface-hover:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(14, 165, 233, 0.28);
+
+    box-shadow:
+      0 18px 45px rgba(27, 83, 113, 0.1),
+      0 0 25px rgba(56, 189, 248, 0.05);
+  }
+
+
+  /* ========================================================
+     PRIMARY BUTTON
+     ======================================================== */
+
+  .btn-primary {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.55rem;
+
+    padding: 0.9rem 1.3rem;
+
+    border: 1px solid rgba(2, 132, 199, 0.25);
+
+    border-radius: 11px;
+
+    color: #ffffff;
+
+    font-size: 0.92rem;
+    font-weight: 700;
+
+    background:
+      linear-gradient(
+        135deg,
+        #0ea5e9,
+        #0284c7
+      );
+
+    box-shadow:
+      0 8px 22px rgba(2, 132, 199, 0.16);
+
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      filter 180ms ease;
+  }
+
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+
+    filter: brightness(1.04);
+
+    box-shadow:
+      0 11px 28px rgba(2, 132, 199, 0.23);
+  }
+
+
+  .btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+    box-shadow: none;
+  }
+
+
+  /* ========================================================
+     SECONDARY BUTTON
+     ======================================================== */
+
+  .btn-secondary {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.5rem;
+
+    padding: 0.82rem 1.2rem;
+
+    border: 1px solid #d2e5ef;
+
+    border-radius: 11px;
+
+    background: rgba(255, 255, 255, 0.85);
+
+    color: #456477;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+
+  .btn-secondary:hover {
+    border-color: #a9d9ee;
+    background: #f0faff;
+    color: #0369a1;
+  }
+
+
+  /* ========================================================
+     TEXT / LABELS
+     ======================================================== */
+
+  .section-title {
+    color: #66879a;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    letter-spacing: 0.14em;
+
+    text-transform: uppercase;
+  }
+
+
+  .gradient-text {
+    background:
+      linear-gradient(
+        90deg,
+        #075985,
+        #0ea5e9
+      );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+  }
+
+
+  .badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 6px 11px;
+
+    border: 1px solid rgba(14, 165, 233, 0.17);
+
+    border-radius: 999px;
+
+    background: #effaff;
+
+    color: #0284c7;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    letter-spacing: 0.025em;
+  }
+
+
+  /* ========================================================
+     STANDARD INPUT
+     ======================================================== */
+
+  .input {
+    width: 100%;
+
+    padding: 0.9rem 1rem;
+
+    border: 1px solid #d4e6ef;
+
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #102a3a;
+
+    font-size: 0.92rem;
+
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+
+  .input::placeholder {
+    color: #8da4b1;
+  }
+
+
+  .input:focus {
+    outline: none;
+
+    border-color: rgba(14, 165, 233, 0.6);
+
+    box-shadow:
+      0 0 0 3px rgba(56, 189, 248, 0.1);
+  }
+
+
+  .glass {
+    border: 1px solid rgba(129, 177, 200, 0.2);
+
+    background: rgba(255, 255, 255, 0.78);
+
+    backdrop-filter: blur(18px);
+  }
+
+
+  .stat-card {
+    @apply surface-hover;
+
+    padding: 1.25rem;
+  }
+
+
+  /* ========================================================
+     DARK MRI / AI HUD
+     We intentionally keep this dark.
+     ======================================================== */
+
+  .hud-panel {
+    position: relative;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(56, 189, 248, 0.22);
+
+    border-radius: 16px;
+
+    background:
+      radial-gradient(
+        circle at center,
+        rgba(14, 165, 233, 0.07),
+        transparent 55%
+      ),
+      linear-gradient(
+        145deg,
+        #061923,
+        #020b11
+      );
+
+    box-shadow:
+      inset 0 0 35px rgba(14, 165, 233, 0.035),
+      0 15px 35px rgba(16, 72, 101, 0.12);
+  }
+
+
+  .hud-panel::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 18px;
+    right: 18px;
+
+    height: 1px;
+
+    background:
+      linear-gradient(
+        90deg,
+        transparent,
+        rgba(125, 211, 252, 0.8),
+        transparent
+      );
+  }
+
+
+  .scan-frame {
+    position: relative;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(56, 189, 248, 0.24);
+
+    border-radius: 14px;
+
+    background: #020a10;
+
+    box-shadow:
+      inset 0 0 38px rgba(14, 165, 233, 0.055),
+      0 0 25px rgba(14, 165, 233, 0.055);
+  }
+
 }
 
-.btn-primary:hover{
 
-  transform:translateY(-2px);
-
-  box-shadow:
-      0 16px 40px rgba(91,124,255,.45);
-}
-
-.btn-secondary{
-
-  display:inline-flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  padding:.9rem 1.4rem;
-
-  border-radius:16px;
-
-  background:rgba(255,255,255,.04);
-
-  border:1px solid rgba(255,255,255,.08);
-
-  color:white;
-}
-
-.btn-secondary:hover{
-
-  background:rgba(255,255,255,.08);
-}
-
-/* ===========================
-   CARDS
-=========================== */
-
-.stat-card{
-
-  @apply surface-hover;
-
-  padding:1.3rem;
-}
-
-.section-title{
-
-  font-size:.8rem;
-
-  text-transform:uppercase;
-
-  letter-spacing:.18em;
-
-  color:var(--muted);
-
-  font-weight:600;
-}
-
-.gradient-text{
-
-  background:
-  linear-gradient(
-  90deg,
-  #ffffff,
-  #9fb4ff
-  );
-
-  -webkit-background-clip:text;
-
-  color:transparent;
-}
-
-.badge{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-
-    padding:6px 12px;
-
-    border-radius:999px;
-
-    font-size:.72rem;
-
-    font-weight:600;
-
-    letter-spacing:.04em;
-
-    background:rgba(91,124,255,.12);
-
-    border:1px solid rgba(91,124,255,.18);
-
-    color:#BFD0FF;
-}
-
-.glass{
-
-  background:rgba(255,255,255,.05);
-
-  backdrop-filter:blur(18px);
-
-  border:1px solid rgba(255,255,255,.08);
-}
-
-.input{
-
-  width:100%;
-
-  background:#182133;
-
-  color:white;
-
-  border-radius:16px;
-
-  padding:.9rem 1rem;
-
-  border:1px solid rgba(255,255,255,.06);
-
-  transition:.2s;
-}
-
-.input:focus{
-
-  outline:none;
-
-  border-color:var(--primary);
-
-  box-shadow:
-  0 0 0 4px rgba(91,124,255,.18);
-}
-
-}
-
-/* ===========================
+/* ==========================================================
    ANIMATIONS
-=========================== */
+   ========================================================== */
 
-@keyframes float{
+@keyframes fadeUp {
 
-0%,100%{
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 
-transform:translateY(0);
-}
-
-50%{
-
-transform:translateY(-8px);
-}
-
-}
-
-@keyframes fadeUp{
-
-from{
-
-opacity:0;
-
-transform:translateY(16px);
-}
-
-to{
-
-opacity:1;
-
-transform:none;
-}
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
 }
 
-.animate-float{
 
-animation:float 5s ease-in-out infinite;
+@keyframes softPulse {
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
 }
 
-.animate-fade{
 
-animation:fadeUp .45s ease;
+.animate-fade {
+  animation: fadeUp 0.35s ease both;
+}
+
+
+.animate-soft-pulse {
+  animation: softPulse 2s ease-in-out infinite;
+}
+
+
+@media (max-width: 640px) {
+
+  body {
+    font-size: 14px;
+  }
+
+  body::before {
+    background-size: 38px 38px;
+  }
+
 }
