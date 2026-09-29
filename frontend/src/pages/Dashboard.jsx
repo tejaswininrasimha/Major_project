@@ -1,4 +1,15 @@
 import { useState } from "react";
+import {
+  Activity,
+  BrainCircuit,
+  CheckCircle2,
+  ChevronRight,
+  CircleDot,
+  Microscope,
+  ScanLine,
+  ShieldCheck,
+} from "lucide-react";
+
 import UploadCard from "../components/UploadCard.jsx";
 import ResultPanel from "../components/ResultPanel.jsx";
 import { predictScan } from "../api/client.js";
@@ -18,30 +29,18 @@ export default function Dashboard() {
 
     try {
       const data = await predictScan(file);
-
-      // MRI validation passed
       setResult(data);
     } catch (err) {
       console.error("Scan analysis error:", err);
 
       const responseData = err?.response?.data;
 
-      // ----------------------------------------------------
-      // Gemini rejected the uploaded image
-      // ----------------------------------------------------
-
       if (responseData?.valid_mri === false) {
         setError(
           responseData?.message ||
             "The uploaded image does not appear to be a brain MRI. Please upload a valid brain MRI image."
         );
-      }
-
-      // ----------------------------------------------------
-      // Other backend errors
-      // ----------------------------------------------------
-
-      else {
+      } else {
         setError(
           responseData?.error ||
             "Something went wrong while analyzing the scan."
@@ -53,143 +52,486 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-7xl px-5 py-7 md:px-8 md:py-9">
 
-      {/* ==================================================
-          PAGE HEADER
-      ================================================== */}
+      {/* =====================================================
+          WORKSPACE HEADER
+      ===================================================== */}
 
-      <div>
-        <h1 className="text-2xl font-semibold">
-          MRI Tumor Analysis
-        </h1>
+      <header className="mb-7">
+        <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
 
-        <p className="mt-1 text-sm text-slate-400">
-          Upload a FLAIR MRI slice to get a classification plus
-          Grad-CAM, Integrated Gradients, and SHAP explanations.
-        </p>
-      </div>
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-brand-400">
+              <CircleDot size={14} />
+              Neuroimaging Workspace
+            </div>
+
+            <h1 className="text-3xl font-semibold tracking-[-0.035em] text-slate-100 md:text-[40px] md:leading-[1.12]">
+              Explainable Brain MRI Analysis
+            </h1>
+
+            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-400">
+              Classify a brain MRI and inspect the visual evidence behind the
+              model decision using multiple explainability methods.
+            </p>
+          </div>
+
+          <div className="hidden items-center gap-3 rounded-xl border border-sky-400/10 bg-[#07131c]/80 px-4 py-3 lg:flex">
+            <Microscope size={18} className="text-brand-400" />
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Framework
+              </p>
+
+              <p className="mt-0.5 text-sm font-medium text-slate-300">
+                CNN + Multi-method XAI
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </header>
 
 
-      {/* ==================================================
-          MAIN CONTENT
-      ================================================== */}
+      {/* =====================================================
+          PIPELINE
+      ===================================================== */}
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+      <section className="mb-6 rounded-2xl border border-sky-400/10 bg-[#07131c]/80 px-5 py-4">
 
-        {/* ==================================================
-            LEFT SIDE — UPLOAD
-        ================================================== */}
+        <div className="flex flex-wrap items-center gap-2.5 text-sm">
 
-        <div className="space-y-4">
+          <div className="flex items-center gap-2 font-medium text-slate-200">
+            <ScanLine size={16} className="text-brand-400" />
+            MRI Input
+          </div>
 
-          <UploadCard
-            onFileSelected={(selectedFile) => {
-              setFile(selectedFile);
-              setError(null);
-              setResult(null);
-            }}
-            disabled={loading}
-          />
+          <ChevronRight size={15} className="text-slate-700" />
 
-          {/* Analyze Button */}
+          <div className="flex items-center gap-2 text-slate-400">
+            <ShieldCheck size={16} className="text-brand-400" />
+            Validation
+          </div>
 
-          <button
-            type="button"
-            onClick={handleAnalyze}
-            disabled={!file || loading}
-            className="w-full rounded-xl bg-brand-500 py-3 font-medium text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {loading ? "Analyzing…" : "Analyze Scan"}
-          </button>
+          <ChevronRight size={15} className="text-slate-700" />
+
+          <div className="flex items-center gap-2 text-slate-400">
+            <BrainCircuit size={16} className="text-brand-400" />
+            CNN Classification
+          </div>
+
+          <ChevronRight size={15} className="text-slate-700" />
+
+          <div className="flex items-center gap-2 text-slate-400">
+            <Activity size={16} className="text-brand-400" />
+            Explainability
+          </div>
+
+          <div className="ml-auto hidden items-center gap-2 text-xs font-medium text-slate-500 md:flex">
+            Grad-CAM
+            <span>•</span>
+            Integrated Gradients
+            <span>•</span>
+            SHAP
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          MAIN WORKSTATION
+      ===================================================== */}
+
+      <section className="overflow-hidden rounded-2xl border border-sky-400/10 bg-[#07131c]/90 shadow-[0_20px_60px_rgba(0,0,0,0.28)]">
+
+        {/* Workstation Headings */}
+
+        <div className="grid border-b border-sky-400/10 lg:grid-cols-[380px_minmax(0,1fr)]">
+
+          <div className="border-b border-sky-400/10 px-5 py-4 lg:border-b-0 lg:border-r">
+
+            <div className="flex items-center gap-2">
+              <ScanLine size={17} className="text-brand-400" />
+
+              <h2 className="text-base font-semibold text-slate-100">
+                MRI Input
+              </h2>
+            </div>
+
+            <p className="mt-1.5 text-sm text-slate-500">
+              Select the scan for model inference
+            </p>
+
+          </div>
+
+
+          <div className="px-5 py-4">
+
+            <div className="flex items-center gap-2">
+              <Activity size={17} className="text-brand-400" />
+
+              <h2 className="text-base font-semibold text-slate-100">
+                Analysis Output
+              </h2>
+            </div>
+
+            <p className="mt-1.5 text-sm text-slate-500">
+              Classification and explainability results
+            </p>
+
+          </div>
 
         </div>
 
 
-        {/* ==================================================
-            RIGHT SIDE — RESULTS
-        ================================================== */}
+        {/* =====================================================
+            WORKSPACE
+        ===================================================== */}
 
-        <div>
+        <div className="grid lg:grid-cols-[380px_minmax(0,1fr)]">
 
-          {/* ==================================================
-              LOADING STATE
-          ================================================== */}
+          {/* =================================================
+              LEFT — MRI INPUT
+          ================================================= */}
 
-          {loading && (
-            <div className="flex h-64 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/40 px-6 text-center text-slate-400">
+          <aside className="border-b border-sky-400/10 bg-[#061018]/70 p-5 lg:border-b-0 lg:border-r">
 
-              Running MRI validation + CNN + Grad-CAM + SHAP +
-              Integrated Gradients…
-
-            </div>
-          )}
-
-
-          {/* ==================================================
-              MRI VALIDATION ERROR
-          ================================================== */}
-
-          {!loading && error && (
-            <div className="flex min-h-64 items-center justify-center rounded-2xl border border-red-500/20 bg-red-500/5 p-8">
-
-              <div className="max-w-lg text-center">
-
-                {/* Icon */}
-
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-3xl">
-                  🧠
-                </div>
+            <UploadCard
+              onFileSelected={(selectedFile) => {
+                setFile(selectedFile);
+                setError(null);
+                setResult(null);
+              }}
+              disabled={loading}
+            />
 
 
-                {/* Heading */}
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              disabled={!file || loading}
+              className="btn-primary mt-4 w-full py-3.5 text-[15px]"
+            >
 
-                <h2 className="mt-5 text-xl font-semibold text-slate-100">
-                  Invalid MRI Image
-                </h2>
+              {loading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#021018]/30 border-t-[#021018]" />
+                  Running Analysis
+                </>
+              ) : (
+                <>
+                  <BrainCircuit size={19} />
+                  Analyze MRI
+                </>
+              )}
+
+            </button>
 
 
-                {/* Message */}
+            {/* Input Status */}
 
-                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
-                  {error}
-                </p>
+            <div className="mt-4 rounded-xl border border-sky-400/[0.08] bg-sky-400/[0.025] px-4 py-3">
 
+              <div className="flex items-center justify-between gap-3">
 
-                {/* Helpful instruction */}
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">
+                  Input Status
+                </span>
 
-                <p className="mt-4 text-xs leading-5 text-slate-500">
-                  Please upload a valid brain MRI scan and try again.
-                </p>
+                {file ? (
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-300">
+                    <CheckCircle2 size={13} />
+                    Ready
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-600">
+                    No scan selected
+                  </span>
+                )}
 
               </div>
 
             </div>
-          )}
 
 
-          {/* ==================================================
-              EMPTY STATE
-          ================================================== */}
+            <p className="mt-4 px-2 text-center text-xs leading-5 text-slate-600">
+              Research and educational prototype. Not intended as an
+              independent clinical diagnostic system.
+            </p>
 
-          {!loading && !error && !result && (
-            <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-slate-800 text-slate-500">
-              Results will appear here
-            </div>
-          )}
+          </aside>
 
 
-          {/* ==================================================
-              SUCCESSFUL RESULT
-          ================================================== */}
+          {/* =================================================
+              RIGHT — ANALYSIS OUTPUT
+          ================================================= */}
 
-          {!loading && result && (
-            <ResultPanel result={result} />
-          )}
+          <main className="min-w-0 bg-[#041018]/55 p-5 md:p-6">
+
+            {/* LOADING */}
+
+            {loading && (
+              <div className="flex min-h-[500px] items-center justify-center">
+
+                <div className="w-full max-w-md text-center">
+
+                  <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
+
+                    <div className="absolute inset-0 animate-ping rounded-full border border-brand-400/10" />
+
+                    <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-brand-400/20 bg-brand-500/[0.07]">
+                      <BrainCircuit
+                        size={27}
+                        className="animate-soft-pulse text-brand-400"
+                      />
+                    </div>
+
+                  </div>
+
+
+                  <h2 className="mt-5 text-lg font-semibold text-slate-100">
+                    Processing MRI
+                  </h2>
+
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-400">
+                    Running validation, CNN inference and explainability
+                    analysis.
+                  </p>
+
+
+                  <div className="mx-auto mt-7 max-w-sm">
+
+                    <div className="grid grid-cols-4 gap-1.5">
+
+                      {[
+                        "Validate",
+                        "Classify",
+                        "Explain",
+                        "Report",
+                      ].map((step) => (
+                        <div key={step}>
+
+                          <div className="h-1.5 animate-pulse rounded-full bg-brand-400/50" />
+
+                          <p className="mt-2 text-[11px] font-medium text-slate-500">
+                            {step}
+                          </p>
+
+                        </div>
+                      ))}
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+
+            {/* ERROR */}
+
+            {!loading && error && (
+              <div className="flex min-h-[500px] items-center justify-center">
+
+                <div className="max-w-md text-center">
+
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-red-400/20 bg-red-400/[0.06]">
+                    <Activity
+                      size={25}
+                      className="text-red-300"
+                    />
+                  </div>
+
+                  <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-red-300">
+                    Analysis Failed
+                  </p>
+
+                  <h2 className="mt-2 text-xl font-semibold text-slate-100">
+                    Unable to process this MRI
+                  </h2>
+
+                  <p className="mt-3 text-sm leading-6 text-slate-400">
+                    {error}
+                  </p>
+
+                  <p className="mt-4 text-xs text-slate-600">
+                    Verify the input image and try again.
+                  </p>
+
+                </div>
+
+              </div>
+            )}
+
+
+            {/* =================================================
+                EMPTY ANALYSIS
+            ================================================= */}
+
+            {!loading && !error && !result && (
+              <div className="flex min-h-[500px] flex-col justify-between">
+
+                <div className="flex flex-1 items-center justify-center">
+
+                  <div className="max-w-md text-center">
+
+                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-brand-400/15 bg-brand-500/[0.06] shadow-[0_0_30px_rgba(56,189,248,0.05)]">
+                      <BrainCircuit
+                        size={32}
+                        className="text-brand-400"
+                      />
+                    </div>
+
+
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-400">
+                      Analysis Output
+                    </p>
+
+                    <h2 className="mt-2 text-xl font-semibold text-slate-200">
+                      No analysis generated
+                    </h2>
+
+                    <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">
+                      Upload a brain MRI from the input panel and start the
+                      analysis to generate classification and XAI results.
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                {/* Result Metrics */}
+
+                <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-sky-400/[0.08] bg-sky-400/[0.018]">
+
+                  <div className="border-r border-sky-400/[0.08] px-4 py-3.5">
+
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                      Prediction
+                    </p>
+
+                    <p className="mt-1.5 text-base text-slate-600">
+                      —
+                    </p>
+
+                  </div>
+
+
+                  <div className="border-r border-sky-400/[0.08] px-4 py-3.5">
+
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                      Confidence
+                    </p>
+
+                    <p className="mt-1.5 text-base text-slate-600">
+                      —
+                    </p>
+
+                  </div>
+
+
+                  <div className="px-4 py-3.5">
+
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-600">
+                      Processing
+                    </p>
+
+                    <p className="mt-1.5 text-base text-slate-600">
+                      —
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+
+            {/* SUCCESS */}
+
+            {!loading && result && (
+              <ResultPanel result={result} />
+            )}
+
+          </main>
 
         </div>
 
-      </div>
+      </section>
+
+
+      {/* =====================================================
+          XAI METHODS
+      ===================================================== */}
+
+      <section className="mt-5 grid gap-3 md:grid-cols-3">
+
+        <div className="rounded-xl border border-sky-400/[0.08] bg-[#07131c]/75 px-5 py-4">
+
+          <div className="flex items-center gap-2.5">
+
+            <div className="h-2 w-2 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(56,189,248,0.5)]" />
+
+            <span className="text-sm font-semibold text-slate-300">
+              Grad-CAM
+            </span>
+
+          </div>
+
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            Highlights spatial regions influencing CNN activation.
+          </p>
+
+        </div>
+
+
+        <div className="rounded-xl border border-sky-400/[0.08] bg-[#07131c]/75 px-5 py-4">
+
+          <div className="flex items-center gap-2.5">
+
+            <div className="h-2 w-2 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(56,189,248,0.5)]" />
+
+            <span className="text-sm font-semibold text-slate-300">
+              Integrated Gradients
+            </span>
+
+          </div>
+
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            Measures pixel attribution relative to a baseline input.
+          </p>
+
+        </div>
+
+
+        <div className="rounded-xl border border-sky-400/[0.08] bg-[#07131c]/75 px-5 py-4">
+
+          <div className="flex items-center gap-2.5">
+
+            <div className="h-2 w-2 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(56,189,248,0.5)]" />
+
+            <span className="text-sm font-semibold text-slate-300">
+              SHAP
+            </span>
+
+          </div>
+
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            Estimates feature contributions toward the model output.
+          </p>
+
+        </div>
+
+      </section>
+
     </div>
   );
 }

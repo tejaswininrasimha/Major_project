@@ -1,64 +1,116 @@
 import { NavLink } from "react-router-dom";
-import { BrainCircuit, LayoutDashboard, History } from "lucide-react";
+import {
+  BrainCircuit,
+  LayoutDashboard,
+  History,
+  Activity,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 const navLink = ({ isActive }) =>
-  `relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+  `relative flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 ${
     isActive
-      ? "text-white bg-white/10 shadow-lg"
-      : "text-slate-400 hover:text-white hover:bg-white/5"
+      ? "bg-white/[0.07] text-white"
+      : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-200"
   }`;
 
 export default function Navbar() {
   return (
     <motion.header
-      initial={{ y: -35, opacity: 0 }}
+      initial={{ y: -15, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.45 }}
-      className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/10 bg-[#0A0E17]/80"
+      transition={{ duration: 0.35 }}
+      className="sticky top-0 z-50 border-b border-white/[0.07] bg-[#080d17]/90 backdrop-blur-xl"
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 md:px-8">
 
-        {/* Logo */}
+        {/* ==================================================
+            BRAND
+        ================================================== */}
 
-        <div className="flex items-center gap-4">
+        <NavLink
+          to="/"
+          className="group flex items-center gap-3.5"
+        >
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-brand-400/20 bg-brand-500/10">
+            <BrainCircuit
+              size={21}
+              className="text-brand-400 transition-transform duration-300 group-hover:scale-105"
+            />
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-[0_10px_35px_rgba(79,107,255,.45)]">
-
-            <BrainCircuit size={24} className="text-white" />
-
+            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border-2 border-[#080d17] bg-emerald-400" />
           </div>
 
           <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[17px] font-semibold tracking-tight text-slate-100">
+                NeuroScan
+              </span>
 
-            <h1 className="text-xl font-bold tracking-tight gradient-text">
-              NeuroScan XAI
-            </h1>
+              <span className="rounded-md border border-brand-400/20 bg-brand-500/10 px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-brand-300">
+                XAI
+              </span>
+            </div>
 
-            <p className="text-xs tracking-[0.25em] uppercase text-slate-400">
-              AI Brain MRI Analysis
+            <p className="mt-0.5 text-[10px] font-medium tracking-[0.13em] text-slate-600">
+              EXPLAINABLE NEUROIMAGING
             </p>
+          </div>
+        </NavLink>
 
+
+        {/* ==================================================
+            RIGHT SIDE
+        ================================================== */}
+
+        <div className="flex items-center gap-4">
+
+          {/* System status — desktop */}
+
+          <div className="hidden items-center gap-2 border-r border-white/[0.07] pr-4 lg:flex">
+            <Activity
+              size={14}
+              className="text-emerald-400"
+            />
+
+            <span className="text-[11px] text-slate-500">
+              Analysis System
+            </span>
+
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           </div>
 
+
+          {/* Navigation */}
+
+          <nav className="flex items-center gap-1 rounded-xl border border-white/[0.07] bg-white/[0.025] p-1">
+
+            <NavLink
+              to="/"
+              end
+              className={navLink}
+            >
+              <LayoutDashboard size={15} />
+
+              <span className="hidden sm:inline">
+                Dashboard
+              </span>
+            </NavLink>
+
+            <NavLink
+              to="/history"
+              className={navLink}
+            >
+              <History size={15} />
+
+              <span className="hidden sm:inline">
+                History
+              </span>
+            </NavLink>
+
+          </nav>
+
         </div>
-
-        {/* Navigation */}
-
-        <nav className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2">
-
-          <NavLink to="/" className={navLink}>
-            <LayoutDashboard size={17} />
-            Dashboard
-          </NavLink>
-
-          <NavLink to="/history" className={navLink}>
-            <History size={17} />
-            History
-          </NavLink>
-
-        </nav>
-
       </div>
     </motion.header>
   );
