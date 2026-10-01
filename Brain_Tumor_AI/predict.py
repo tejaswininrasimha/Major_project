@@ -103,7 +103,7 @@
 #             },
 
 #             "processing_time": round(
-#                 time.time() - start,
+#                 total_seconds,
 #                 3
 #             ),
 
@@ -177,6 +177,7 @@ class BrainTumorPredictor:
 
         start = time.time()
 
+        stage_start = time.time()
         input_tensor, image_np = preprocess_image(
             image_path,
             self.config["mean"],
@@ -185,8 +186,11 @@ class BrainTumorPredictor:
         )
 
         input_tensor = input_tensor.to(self.device)
+        preprocess_seconds = time.time() - stage_start
 
         # ---------------- Prediction ----------------
+
+        stage_start = time.time()
 
         with torch.no_grad():
 
@@ -200,6 +204,7 @@ class BrainTumorPredictor:
             )
 
         prediction = self.class_names[pred.item()]
+        prediction_seconds = time.time() - stage_start
 
         summary = generate_summary(
             prediction,
@@ -208,12 +213,15 @@ class BrainTumorPredictor:
 
         # ---------------- GradCAM ----------------
 
+        stage_start = time.time()
         gradcam = self.gradcam.generate(
             input_tensor
         )
+        gradcam_seconds = time.time() - stage_start
 
         # ---------------- SHAP ----------------
 
+        stage_start = time.time()
         shap = self.shap.generate(
             input_tensor=input_tensor,
             image_np=image_np,
@@ -221,15 +229,29 @@ class BrainTumorPredictor:
             class_names=self.class_names,
             confidence=confidence.item()
         )
+        shap_seconds = time.time() - stage_start
 
         # -------- Integrated Gradients --------
 
+        stage_start = time.time()
         integrated_gradients = self.integrated_gradients.generate(
             input_tensor=input_tensor,
             image_np=image_np,
             prediction=pred.item(),
             class_names=self.class_names,
             confidence=confidence.item()
+        )
+        integrated_gradients_seconds = time.time() - stage_start
+
+        total_seconds = time.time() - start
+        print(
+            "\n[NeuroScan timing] "
+            f"preprocess={preprocess_seconds:.3f}s | "
+            f"prediction={prediction_seconds:.3f}s | "
+            f"gradcam={gradcam_seconds:.3f}s | "
+            f"shap={shap_seconds:.3f}s | "
+            f"integrated_gradients={integrated_gradients_seconds:.3f}s | "
+            f"total={total_seconds:.3f}s"
         )
 
         return {
