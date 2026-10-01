@@ -8,6 +8,12 @@ const MODES = [
   ["clinical_research", "Clinical / Research"],
 ];
 
+const MODE_HELP = {
+  simple: "Easy explanation with minimal ML/XAI jargon.",
+  technical: "Deeper ML/XAI explanation using model, attribution, gradient and feature terminology.",
+  clinical_research: "Research-oriented interpretation focused on evidence, uncertainty and limitations — not diagnosis or treatment.",
+};
+
 const SUGGESTIONS = [
   "Explain this scan result.",
   "What does the confidence mean?",
@@ -108,6 +114,15 @@ export default function ScanAssistant({ scanId }) {
             ))}
           </div>
 
+          <div className="mb-4 rounded-xl border border-brand-400/10 bg-brand-500/[0.025] px-3.5 py-2.5">
+            <p className="text-xs leading-5 text-slate-400">
+              <span className="font-semibold text-brand-300">
+                {MODES.find(([value]) => value === mode)?.[1]} mode:
+              </span>{" "}
+              {MODE_HELP[mode]}
+            </p>
+          </div>
+
           {messages.length === 0 && (
             <div className="mb-4 grid gap-2 sm:grid-cols-2">
               {SUGGESTIONS.map((question) => (
@@ -152,7 +167,7 @@ export default function ScanAssistant({ scanId }) {
 
           {error && (
             <div className="mb-3 rounded-xl border border-amber-400/15 bg-amber-400/[0.04] px-3 py-2.5 text-xs leading-5 text-amber-200/80">
-              {error} The scan analysis above is unaffected.
+              {error}
             </div>
           )}
 
