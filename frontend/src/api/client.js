@@ -41,4 +41,19 @@ export async function deleteScan(id) {
   await client.delete(`/history/${id}/`);
 }
 
+export async function sendChatMessage(
+  scanId,
+  message,
+  mode = "simple",
+  conversation = []
+) {
+  const { data } = await client.post(`/scans/${scanId}/chat/`, {
+    message,
+    mode,
+    conversation,
+  });
+
+  return data;
+}
+
 export default client;
