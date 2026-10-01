@@ -19,15 +19,8 @@ def _get_client():
     return _client
 
 
-def generate_chat_answer(prompt):
-    model = getattr(
-        settings,
-        "GEMINI_CHAT_MODEL",
-        getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash"),
-    )
-
-    # Retry once only for temporary provider pressure. This remains isolated
-    # from the prediction/XAI pipeline and never fabricates a fallback answer.
+def _generate_with_model(model, prompt):
+    """Try a model twice only when Gemini reports temporary overload."""
     for attempt in range(2):
         try:
             response = _get_client().models.generate_content(
@@ -42,4 +35,27 @@ def generate_chat_answer(prompt):
             status_code = getattr(exc, "status_code", None)
             if status_code not in {429, 503} or attempt == 1:
                 raise
-            time.sleep(1.5)
+            time.sleep(1.0)
+
+
+def generate_chat_answer(prompt):
+    primary_model = getattr(
+        settings,
+        "GEMINI_CHAT_MODEL",
+        getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash"),
+    )
+    fallback_model = getattr(
+        settings,
+        "GEMINI_CHAT_FALLBACK_MODEL",
+        "gemini-3.7-flash",
+    )
+
+    try:
+        return _generate_with_model(primary_model, prompt)
+    except (errors.ServerError, errors.ClientError) as exc:
+        # Fall back only for temporary capacity/rate-limit errors. Other
+        # failures surface normally, and prediction/XAI remain unaffected.
+        status_code = getattr(exc, "status_code", None)
+        if status_code not in {429, 503} or fallback_model == primary_model:
+            raise
+        return _generate_with_model(fallback_model, prompt)
