@@ -6,6 +6,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import ScanAssistant from "./ScanAssistant.jsx";
+
 function XAIImage({ title, description, image }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-sky-400/10 bg-[#061018]/80">
@@ -242,6 +244,11 @@ export default function ResultPanel({ result }) {
 
         </div>
       </section>
+
+
+      {/* SCAN-AWARE ASSISTANT */}
+
+      <ScanAssistant scanId={result?.id} />
 
 
       {/* DISCLAIMER */}
