@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import ReportImage from "../components/ReportImage.jsx";
+import ScanAssistant from "../components/ScanAssistant.jsx";
 import { deleteScan, fetchScan } from "../api/client.js";
 
 export default function ScanDetail() {
@@ -631,6 +632,13 @@ export default function ScanDetail() {
           </div>
 
         </section>
+
+
+        {/* ================================================
+            SCAN-AWARE ASSISTANT
+        ================================================ */}
+
+        <ScanAssistant scanId={id} />
 
 
         {/* ================================================
