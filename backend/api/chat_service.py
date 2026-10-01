@@ -1,7 +1,5 @@
 """Gemini client isolated from the prediction/XAI pipeline."""
 
-import time
-
 from django.conf import settings
 from google import genai
 from google.genai import errors
@@ -40,22 +38,15 @@ def _is_temporary_provider_error(exc):
 
 
 def _generate_with_model(model, prompt):
-    """Try a model twice only when Gemini reports temporary overload."""
-    for attempt in range(2):
-        try:
-            response = _get_client().models.generate_content(
-                model=model,
-                contents=prompt,
-            )
-            answer = (getattr(response, "text", "") or "").strip()
-            if not answer:
-                raise RuntimeError("The assistant returned an empty response.")
-            return answer
-        except (errors.ServerError, errors.ClientError) as exc:
-            if not _is_temporary_provider_error(exc) or attempt == 1:
-                raise
-            time.sleep(1.0)
-
+    """Make one application-level request; the SDK manages its own retries."""
+    response = _get_client().models.generate_content(
+        model=model,
+        contents=prompt,
+    )
+    answer = (getattr(response, "text", "") or "").strip()
+    if not answer:
+        raise RuntimeError("The assistant returned an empty response.")
+    return answer
 
 def generate_chat_answer(prompt):
     primary_model = getattr(
