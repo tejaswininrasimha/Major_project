@@ -49,6 +49,7 @@ def _generate_with_model(model, prompt):
     return answer
 
 def generate_chat_answer(prompt):
+    """Try stable Gemini models in order when capacity/rate limits are temporary."""
     primary_model = getattr(
         settings,
         "GEMINI_CHAT_MODEL",
@@ -59,12 +60,30 @@ def generate_chat_answer(prompt):
         "GEMINI_CHAT_FALLBACK_MODEL",
         "gemini-3.7-flash",
     )
+    emergency_model = getattr(
+        settings,
+        "GEMINI_CHAT_EMERGENCY_MODEL",
+        "gemini-3.5-flash-lite",
+    )
 
-    try:
-        return _generate_with_model(primary_model, prompt)
-    except (errors.ServerError, errors.ClientError) as exc:
-        # Fall back only for temporary capacity/rate-limit errors. Other
-        # failures surface normally, and prediction/XAI remain unaffected.
-        if not _is_temporary_provider_error(exc) or fallback_model == primary_model:
-            raise
-        return _generate_with_model(fallback_model, prompt)
+    models = []
+    for model in (primary_model, fallback_model, emergency_model):
+        if model and model not in models:
+            models.append(model)
+
+    last_error = None
+    for index, model in enumerate(models):
+        try:
+            return _generate_with_model(model, prompt)
+        except (errors.ServerError, errors.ClientError) as exc:
+            last_error = exc
+            # Only move to another model for temporary overload/rate-limit
+            # failures. Configuration/auth/input errors should surface directly.
+            if not _is_temporary_provider_error(exc):
+                raise
+            if index == len(models) - 1:
+                raise
+
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("No Gemini chat model is configured.")
