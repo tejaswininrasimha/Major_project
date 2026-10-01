@@ -1,7 +1,10 @@
 """Gemini client isolated from the prediction/XAI pipeline."""
 
+import time
+
 from django.conf import settings
 from google import genai
+from google.genai import errors
 
 _client = None
 
@@ -22,8 +25,21 @@ def generate_chat_answer(prompt):
         "GEMINI_CHAT_MODEL",
         getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash"),
     )
-    response = _get_client().models.generate_content(model=model, contents=prompt)
-    answer = (getattr(response, "text", "") or "").strip()
-    if not answer:
-        raise RuntimeError("The assistant returned an empty response.")
-    return answer
+
+    # Retry once only for temporary provider pressure. This remains isolated
+    # from the prediction/XAI pipeline and never fabricates a fallback answer.
+    for attempt in range(2):
+        try:
+            response = _get_client().models.generate_content(
+                model=model,
+                contents=prompt,
+            )
+            answer = (getattr(response, "text", "") or "").strip()
+            if not answer:
+                raise RuntimeError("The assistant returned an empty response.")
+            return answer
+        except (errors.ServerError, errors.ClientError) as exc:
+            status_code = getattr(exc, "status_code", None)
+            if status_code not in {429, 503} or attempt == 1:
+                raise
+            time.sleep(1.5)
