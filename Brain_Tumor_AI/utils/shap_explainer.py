@@ -6,6 +6,8 @@ import cv2
 import shap
 import torch
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
@@ -91,25 +93,27 @@ class SHAPGenerator:
 
         self.model.eval()
 
+        # Explain only the top model output instead of computing attribution
+        # maps for every class. The predicted class is the top output by design.
+        # A moderate nsamples cap substantially reduces GradientExplainer cost
+        # while preserving the same SHAP method and background reference.
         shap_values = self.explainer.shap_values(
-
-            input_tensor
-
+            input_tensor,
+            nsamples=50,
+            ranked_outputs=1
         )
 
+        # ranked_outputs returns (values, output_indexes).
+        if isinstance(shap_values, tuple):
+            shap_values = shap_values[0]
+
         if isinstance(shap_values, list):
-
-            shap_map = shap_values[prediction][0]
-
+            shap_map = shap_values[0][0]
+        elif shap_values.ndim == 5:
+            # With ranked_outputs=1 the final dimension has one explained output.
+            shap_map = shap_values[0, :, :, :, 0]
         else:
-
-            shap_map = shap_values[
-                0,
-                :,
-                :,
-                :,
-                prediction
-            ]
+            shap_map = shap_values[0]
 
         shap_map = np.mean(
             shap_map,
