@@ -11,6 +11,9 @@ from .inference import run_prediction
 from .mri_validator import validate_mri
 from .models import Scan
 from .serializers import ScanDetailSerializer, ScanListSerializer
+from .scan_context import build_scan_context
+from .chat_prompt import build_chat_prompt
+from .chat_service import generate_chat_answer
 
 
 # ============================================================
@@ -336,4 +339,89 @@ def health_view(request):
         {
             "status": "ok"
         }
+    )
+
+
+# ============================================================
+# SCAN-AWARE XAI CHATBOT API
+# ============================================================
+
+@api_view(["POST"])
+def scan_chat_view(request, scan_id):
+    try:
+        scan = Scan.objects.get(id=scan_id)
+    except Scan.DoesNotExist:
+        return Response(
+            {"error": "Scan not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    question = request.data.get("message", "")
+    if not isinstance(question, str) or not question.strip():
+        return Response(
+            {"error": "A non-empty 'message' is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    question = question.strip()
+    if len(question) > 4000:
+        return Response(
+            {"error": "Message is too long. Maximum length is 4000 characters."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    mode = request.data.get("mode", "simple")
+    allowed_modes = {"simple", "technical", "clinical_research"}
+    if mode not in allowed_modes:
+        return Response(
+            {"error": f"Invalid mode. Choose one of: {sorted(allowed_modes)}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    conversation = request.data.get("conversation", [])
+    if not isinstance(conversation, list):
+        return Response(
+            {"error": "'conversation' must be a list."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    scan_context = build_scan_context(scan)
+    prompt = build_chat_prompt(
+        scan_context=scan_context,
+        question=question,
+        mode=mode,
+        conversation=conversation,
+    )
+
+    try:
+        answer = generate_chat_answer(prompt)
+    except Exception:
+        traceback.print_exc()
+        return Response(
+            {
+                "error": "The NeuroScan XAI Assistant is temporarily unavailable.",
+                "message": (
+                    "The scan analysis remains available. "
+                    "Please try the assistant again later."
+                ),
+            },
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    sources = ["DenseNet121"]
+    if scan.gradcam_b64:
+        sources.append("Grad-CAM")
+    if scan.integrated_gradients_b64:
+        sources.append("Integrated Gradients")
+    if scan.shap_b64:
+        sources.append("SHAP")
+
+    return Response(
+        {
+            "scan_id": str(scan.id),
+            "answer": answer,
+            "mode": mode,
+            "sources": sources,
+        },
+        status=status.HTTP_200_OK,
     )
