@@ -19,6 +19,26 @@ def _get_client():
     return _client
 
 
+def _is_temporary_provider_error(exc):
+    """Recognize temporary Gemini capacity/rate-limit errors across SDK versions."""
+    status_code = getattr(exc, "status_code", None)
+    if status_code in {429, 503}:
+        return True
+
+    code = getattr(exc, "code", None)
+    if code in {429, 503}:
+        return True
+
+    message = str(exc).upper()
+    return (
+        "429" in message
+        or "503" in message
+        or "RESOURCE_EXHAUSTED" in message
+        or "UNAVAILABLE" in message
+        or "HIGH DEMAND" in message
+    )
+
+
 def _generate_with_model(model, prompt):
     """Try a model twice only when Gemini reports temporary overload."""
     for attempt in range(2):
@@ -32,8 +52,7 @@ def _generate_with_model(model, prompt):
                 raise RuntimeError("The assistant returned an empty response.")
             return answer
         except (errors.ServerError, errors.ClientError) as exc:
-            status_code = getattr(exc, "status_code", None)
-            if status_code not in {429, 503} or attempt == 1:
+            if not _is_temporary_provider_error(exc) or attempt == 1:
                 raise
             time.sleep(1.0)
 
@@ -55,7 +74,6 @@ def generate_chat_answer(prompt):
     except (errors.ServerError, errors.ClientError) as exc:
         # Fall back only for temporary capacity/rate-limit errors. Other
         # failures surface normally, and prediction/XAI remain unaffected.
-        status_code = getattr(exc, "status_code", None)
-        if status_code not in {429, 503} or fallback_model == primary_model:
+        if not _is_temporary_provider_error(exc) or fallback_model == primary_model:
             raise
         return _generate_with_model(fallback_model, prompt)
