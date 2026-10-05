@@ -25,7 +25,7 @@ def build_scan_context(scan):
                 "available": bool(scan.integrated_gradients_b64),
                 "method": "Captum IntegratedGradients",
                 "n_steps": 50,
-                "baseline_explicitly_set_in_project_code": False,
+                "baseline_configuration": "No baseline argument is explicitly supplied in the project code.",
                 "meaning": "input attribution for the predicted output",
             },
             "shap": {
