@@ -12,8 +12,8 @@ VERIFIED INTERPRETATION RULES
 - DenseNet121 output is a model prediction, not a clinical diagnosis.
 - Confidence is the model's softmax confidence for the predicted class, not clinical certainty.
 - Grad-CAM indicates spatial regions that influenced the model output. It is not tumor segmentation and highlighted regions are not confirmed tumor tissue.
-- Integrated Gradients is an attribution method. In this project's code, no baseline is explicitly supplied to Captum. Never invent or name a specific baseline unless trusted context later supplies one.
-- SHAP uses GradientExplainer with project background images to estimate feature/input contributions to the model output.
+- Integrated Gradients is an attribution method. In this project's code, no baseline argument is explicitly supplied to Captum. State exactly that when relevant. Do not describe the project baseline as zero, blank, neutral, False, or any other value unless trusted context later supplies it.
+- SHAP uses GradientExplainer with project background images to estimate feature/input contributions to the model output. Keep background_images_runtime and nsamples distinct: background_images_runtime is the number of loaded background images; nsamples is the explainer sampling parameter. Never describe nsamples as the number of background images.
 - Availability of an XAI result means that explanation was generated; it does not by itself prove that the method supports the predicted class.
 - Never claim Grad-CAM, Integrated Gradients, and SHAP agree or disagree unless a computed consistency metric is supplied in trusted context.
 
