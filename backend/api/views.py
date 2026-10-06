@@ -9,7 +9,7 @@ from rest_framework import status
 
 from .inference import run_prediction
 from .mri_validator import validate_mri
-from .models import Scan
+from .models import ChatMessage, ChatSession, Scan
 from .serializers import ScanDetailSerializer, ScanListSerializer
 from .scan_context import build_scan_context
 from .chat_prompt import build_chat_prompt
@@ -346,7 +346,7 @@ def health_view(request):
 # SCAN-AWARE XAI CHATBOT API
 # ============================================================
 
-@api_view(["POST"])
+@api_view(["GET", "POST", "DELETE"])
 def scan_chat_view(request, scan_id):
     try:
         scan = Scan.objects.get(id=scan_id)
@@ -355,6 +355,38 @@ def scan_chat_view(request, scan_id):
             {"error": "Scan not found."},
             status=status.HTTP_404_NOT_FOUND,
         )
+
+    session = ChatSession.objects.filter(scan=scan).first()
+
+    if request.method == "GET":
+        if not session:
+            return Response(
+                {"scan_id": str(scan.id), "mode": "simple", "messages": []},
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {
+                "scan_id": str(scan.id),
+                "mode": session.mode,
+                "messages": [
+                    {
+                        "id": message.id,
+                        "role": message.role,
+                        "content": message.content,
+                        "mode": message.mode,
+                        "sources": message.sources,
+                        "created_at": message.created_at.isoformat(),
+                    }
+                    for message in session.messages.all()
+                ],
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    if request.method == "DELETE":
+        if session:
+            session.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     question = request.data.get("message", "")
     if not isinstance(question, str) or not question.strip():
@@ -378,12 +410,22 @@ def scan_chat_view(request, scan_id):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    conversation = request.data.get("conversation", [])
-    if not isinstance(conversation, list):
-        return Response(
-            {"error": "'conversation' must be a list."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    session, _ = ChatSession.objects.get_or_create(
+        scan=scan,
+        defaults={"mode": mode},
+    )
+    if session.mode != mode:
+        session.mode = mode
+        session.save(update_fields=["mode", "updated_at"])
+
+    persisted_messages = list(
+        session.messages.order_by("-created_at", "-id")[:6]
+    )
+    persisted_messages.reverse()
+    conversation = [
+        {"role": item.role, "content": item.content}
+        for item in persisted_messages
+    ]
 
     scan_context = build_scan_context(scan)
     prompt = build_chat_prompt(
@@ -415,6 +457,20 @@ def scan_chat_view(request, scan_id):
         sources.append("Integrated Gradients")
     if scan.shap_b64:
         sources.append("SHAP")
+
+    ChatMessage.objects.create(
+        session=session,
+        role="user",
+        content=question,
+        mode=mode,
+    )
+    ChatMessage.objects.create(
+        session=session,
+        role="assistant",
+        content=answer,
+        mode=mode,
+        sources=sources,
+    )
 
     return Response(
         {
