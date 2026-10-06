@@ -60,6 +60,4 @@ class IntegratedGradientsGenerator:
 
         buffer.seek(0)
 
-        return base64.b64encode(
-            buffer.read()
-        ).decode("utf-8")
+        encoded = base64.b64encode(\n            buffer.read()\n        ).decode("utf-8")\n\n        return encoded, attr
