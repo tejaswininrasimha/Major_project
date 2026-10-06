@@ -18,7 +18,7 @@ class Scan(models.Model):
     original_image_b64 = models.TextField()
     gradcam_b64 = models.TextField(blank=True, default="")
     shap_b64 = models.TextField(blank=True, default="")
-    integrated_gradients_b64 = models.TextField(blank=True, default="")
+    integrated_gradients_b64 = models.TextField(blank=True, default="")\n    xai_consistency = models.JSONField(default=dict, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
