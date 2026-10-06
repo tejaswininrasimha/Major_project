@@ -65,4 +65,4 @@ class GradCAMGenerator:
             buffer.read()
         ).decode("utf-8")
 
-        return gradcam_base64
+        return gradcam_base64, grayscale_cam
