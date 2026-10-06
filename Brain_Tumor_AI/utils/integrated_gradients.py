@@ -43,7 +43,8 @@ class IntegratedGradientsGenerator:
         plt.imshow(attr, cmap="jet", alpha=0.5)
 
         plt.title(
-            f"Integrated Gradients\nPrediction: {class_names[prediction]} ({confidence*100:.2f}%)"
+            f"Integrated Gradients
+Prediction: {class_names[prediction]} ({confidence*100:.2f}%)"
         )
 
         plt.axis("off")
@@ -60,4 +61,8 @@ class IntegratedGradientsGenerator:
 
         buffer.seek(0)
 
-        encoded = base64.b64encode(\n            buffer.read()\n        ).decode("utf-8")\n\n        return encoded, attr
+        encoded = base64.b64encode(
+            buffer.read()
+        ).decode("utf-8")
+
+        return encoded, attr
