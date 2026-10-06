@@ -56,4 +56,13 @@ export async function sendChatMessage(
   return data;
 }
 
+export async function fetchChatHistory(scanId) {
+  const { data } = await client.get(`/scans/${scanId}/chat/`);
+  return data;
+}
+
+export async function clearChatHistory(scanId) {
+  await client.delete(`/scans/${scanId}/chat/`);
+}
+
 export default client;
