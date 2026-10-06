@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, RefreshCw, Send, Sparkles, UserRound, X } from "lucide-react";
-import { sendChatMessage } from "../api/client.js";
+import { Bot, RefreshCw, Send, Sparkles, Trash2, UserRound, X } from "lucide-react";
+import { clearChatHistory, fetchChatHistory, sendChatMessage } from "../api/client.js";
 
 const MODES = [
   ["simple", "Simple"],
@@ -69,7 +69,26 @@ export default function ScanAssistant({ scanId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [lastQuestion, setLastQuestion] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(true);
   const endRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+    setHistoryLoading(true);
+    fetchChatHistory(scanId)
+      .then((data) => {
+        if (!active) return;
+        setMessages(data.messages || []);
+        if (data.mode) setMode(data.mode);
+      })
+      .catch(() => {
+        if (active) setError("Previous assistant conversation could not be loaded.");
+      })
+      .finally(() => {
+        if (active) setHistoryLoading(false);
+      });
+    return () => { active = false; };
+  }, [scanId]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -109,6 +128,18 @@ export default function ScanAssistant({ scanId }) {
     ask(input);
   }
 
+  async function clearConversation() {
+    if (loading || historyLoading) return;
+    try {
+      await clearChatHistory(scanId);
+      setMessages([]);
+      setError("");
+      setLastQuestion("");
+    } catch {
+      setError("The conversation could not be cleared. Please try again.");
+    }
+  }
+
   return (
     <section className="rounded-2xl border border-brand-400/15 bg-[#07131c]/90">
       <button type="button" onClick={() => setOpen((value) => !value)} className="flex w-full items-center justify-between gap-4 p-5 text-left">
@@ -127,13 +158,21 @@ export default function ScanAssistant({ scanId }) {
 
       {open && (
         <div className="border-t border-sky-400/10 p-5">
-          <div className="mb-3 flex flex-wrap gap-2">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
             {MODES.map(([value, label]) => (
               <button key={value} type="button" disabled={loading} onClick={() => setMode(value)}
                 className={`rounded-full border px-3 py-1.5 text-xs transition ${mode === value ? "border-brand-400/30 bg-brand-500/10 text-brand-300" : "border-white/[0.08] text-slate-500 hover:text-slate-300"}`}>
                 {label}
               </button>
             ))}
+            </div>
+            {messages.length > 0 && (
+              <button type="button" onClick={clearConversation} disabled={loading || historyLoading}
+                className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.07] px-2.5 py-1.5 text-[11px] text-slate-500 transition hover:border-red-400/20 hover:text-red-300 disabled:opacity-50">
+                <Trash2 size={12} /> New conversation
+              </button>
+            )}
           </div>
 
           <div className="mb-4 rounded-xl border border-brand-400/10 bg-brand-500/[0.025] px-3.5 py-2.5">
@@ -142,7 +181,14 @@ export default function ScanAssistant({ scanId }) {
             </p>
           </div>
 
-          {messages.length === 0 && (
+          {historyLoading && (
+            <div className="mb-4 flex items-center gap-2 text-xs text-slate-500">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-brand-400" />
+              Loading this scan's conversation...
+            </div>
+          )}
+
+          {!historyLoading && messages.length === 0 && (
             <div className="mb-4 grid gap-2 sm:grid-cols-2">
               {SUGGESTIONS.map((question) => (
                 <button key={question} type="button" onClick={() => ask(question)}
