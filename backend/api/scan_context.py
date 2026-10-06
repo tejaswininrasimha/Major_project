@@ -37,5 +37,5 @@ def build_scan_context(scan):
                 "meaning": "feature/input contribution toward the model output",
             },
         },
-        "created_at": scan.created_at.isoformat(),
+        "xai_consistency": scan.xai_consistency or {},\n        "created_at": scan.created_at.isoformat(),
     }
