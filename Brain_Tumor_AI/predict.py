@@ -7,7 +7,7 @@
 # from utils.gradcam import GradCAMGenerator
 # from utils.shap_explainer import SHAPGenerator
 # from utils.integrated_gradients import IntegratedGradientsGenerator
-# from utils.explanation import generate_summary
+# from utils.explanation import generate_summary\nfrom utils.xai_consistency import compute_xai_consistency
 
 
 # class BrainTumorPredictor:
@@ -78,7 +78,7 @@
 #         )
 
 #         # ---------- SHAP ----------
-#         shap = self.shap.generate(
+#         shap, shap_map = self.shap.generate(
 #             input_tensor=input_tensor,
 #             image_np=image_np,
 #             prediction=pred.item(),
@@ -87,7 +87,7 @@
 #         )
 
 #         # ---------- Integrated Gradients ----------
-#         integrated_gradients = self.integrated_gradients.generate(
+#         integrated_gradients, integrated_gradients_map = self.integrated_gradients.generate(
 #             input_tensor=input_tensor,
 #             image_np=image_np,
 #             prediction=pred.item(),
@@ -113,7 +113,7 @@
 
 #             "integrated_gradients": integrated_gradients,
 
-#             "summary": summary
+#             "summary": summary,\n\n            "xai_consistency": xai_consistency
 
 #         }
 
@@ -243,7 +243,7 @@ class BrainTumorPredictor:
         )
         integrated_gradients_seconds = time.time() - stage_start
 
-        total_seconds = time.time() - start
+        xai_consistency = compute_xai_consistency(\n            gradcam_map,\n            integrated_gradients_map,\n            shap_map,\n        )\n\n        total_seconds = time.time() - start
         print(
             "\n[NeuroScan timing] "
             f"preprocess={preprocess_seconds:.3f}s | "
