@@ -209,6 +209,7 @@ def predict_view(request):
                 "integrated_gradients",
                 "",
             ),
+            xai_consistency=result.get("xai_consistency", {}),
         )
 
 
