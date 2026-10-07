@@ -50,11 +50,7 @@ def _generate_with_model(model, prompt):
 
 def generate_chat_answer(prompt):
     """Try stable Gemini models in order when capacity/rate limits are temporary."""
-    primary_model = getattr(
-        settings,
-        "GEMINI_CHAT_MODEL",
-        getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash"),
-    )
+    # Chat is latency-sensitive. Use the lightweight Flash model first;\n    # the MRI validator/prediction configuration remains unchanged.\n    primary_model = getattr(\n        settings,\n        "GEMINI_CHAT_MODEL",\n        "gemini-3.5-flash-lite",\n    )
     fallback_model = getattr(
         settings,
         "GEMINI_CHAT_FALLBACK_MODEL",
@@ -63,10 +59,7 @@ def generate_chat_answer(prompt):
     emergency_model = getattr(
         settings,
         "GEMINI_CHAT_EMERGENCY_MODEL",
-        "gemini-3.5-flash-lite",
-    )
-
-    models = []
+        getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash"),\n    )\n\n    models = []
     for model in (primary_model, fallback_model, emergency_model):
         if model and model not in models:
             models.append(model)
