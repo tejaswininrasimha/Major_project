@@ -25,6 +25,9 @@ def _cosine(a, b):
 
 
 def _top_overlap(a, b, fraction=0.10):
+    if not np.any(a) or not np.any(b):
+        return 0.0
+
     left = a.reshape(-1)
     right = b.reshape(-1)
     count = max(1, int(left.size * fraction))
