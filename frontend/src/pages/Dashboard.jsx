@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Activity,
   BrainCircuit,
@@ -16,7 +15,6 @@ import ResultPanel from "../components/ResultPanel.jsx";
 import { predictScan } from "../api/client.js";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -32,13 +30,6 @@ export default function Dashboard() {
     try {
       const data = await predictScan(file);
       setResult(data);
-
-      // The backend persists every successful analysis and returns its UUID.
-      // Move to the canonical saved-scan page so refresh restores both the
-      // analysis and its scan-linked assistant conversation from Django.
-      if (data?.id) {
-        navigate(`/history/${data.id}`);
-      }
     } catch (err) {
       console.error("Scan analysis error:", err);
 
