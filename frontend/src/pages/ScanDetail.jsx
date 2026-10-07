@@ -635,6 +635,66 @@ export default function ScanDetail() {
 
 
         {/* ================================================
+            XAI CONSISTENCY
+        ================================================ */}
+
+        <section className="rounded-2xl border border-brand-400/10 bg-[#0d1416] p-5 md:p-6">
+          <div className="flex items-center gap-2">
+            <Activity size={16} className="text-brand-400" />
+            <h2 className="text-sm font-semibold text-slate-200">
+              XAI Consistency Analysis
+            </h2>
+          </div>
+
+          {scan.xai_consistency?.pairwise ? (
+            <>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                Numerical comparison of attribution magnitude across Grad-CAM,
+                Integrated Gradients, and SHAP. Higher values mean greater
+                numerical similarity for that metric, not greater clinical correctness.
+              </p>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                {Object.entries(scan.xai_consistency.pairwise).map(([key, metrics]) => (
+                  <div key={key} className="rounded-xl border border-white/[0.07] bg-black/10 p-4">
+                    <p className="text-xs font-semibold capitalize text-slate-300">
+                      {key.replaceAll("_", " ").replace(" vs ", " ↔ ")}
+                    </p>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-600">Cosine</p>
+                        <p className="mt-1 text-lg font-semibold text-slate-100">
+                          {Number(metrics.cosine_similarity).toFixed(4)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-600">Top 10% IoU</p>
+                        <p className="mt-1 text-lg font-semibold text-slate-100">
+                          {Number(metrics.top_10_percent_iou).toFixed(4)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-4 text-[10px] leading-5 text-slate-600">
+                Method: absolute attribution magnitude, independently normalized to [0,1].
+                Cosine similarity compares overall attribution patterns; Top-10% IoU compares
+                overlap among the highest-attribution pixels. Agreement does not establish
+                prediction validity or clinical accuracy.
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-xs text-slate-600">
+              Consistency metrics were not computed for this scan. Run a new analysis
+              with the current pipeline to generate them.
+            </p>
+          )}
+        </section>
+
+
+        {/* ================================================
             SCAN-AWARE ASSISTANT
         ================================================ */}
 
