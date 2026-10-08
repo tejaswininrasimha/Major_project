@@ -128,8 +128,7 @@ class SHAPGenerator:
         )
 
         plt.title(
-        f"SHAP
-Prediction: {class_names[prediction]} ({confidence*100:.2f}%)"
+            f"SHAP\nPrediction: {class_names[prediction]} ({confidence*100:.2f}%)"
         )
 
         plt.axis("off")

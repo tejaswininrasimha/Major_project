@@ -116,7 +116,7 @@ from utils.xai_consistency import compute_xai_consistency
 
 #             "summary": summary,
 
-            "xai_consistency": xai_consistency
+#           "xai_consistency": xai_consistency
 
 #         }
 
@@ -255,8 +255,7 @@ class BrainTumorPredictor:
 
         total_seconds = time.time() - start
         print(
-            "
-[NeuroScan timing] "
+            "[NeuroScan timing] "
             f"preprocess={preprocess_seconds:.3f}s | "
             f"prediction={prediction_seconds:.3f}s | "
             f"gradcam={gradcam_seconds:.3f}s | "
