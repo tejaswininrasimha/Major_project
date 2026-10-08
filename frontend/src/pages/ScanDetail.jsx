@@ -85,10 +85,41 @@ export default function ScanDetail() {
         pdf.setFont("helvetica", "normal");
       };
 
-      const addBase64Image = (label, base64) => {
-        if (!base64) return;
-        ensureSpace(245);
-        pdf.setFont("helvetica", "bold");
+      const imageItems = [
+        ["Original MRI", scan.original_image_b64],
+        ["Grad-CAM", scan.gradcam_b64],
+        ["Integrated Gradients", scan.integrated_gradients_b64],
+        ["SHAP", scan.shap_b64],
+      ].filter(([, data]) => Boolean(data));
+
+      const addImageGrid = () => {
+        const gap = 16;
+        const cellWidth = (contentWidth - gap) / 2;
+        const maxImageHeight = 205;
+        for (let i = 0; i < imageItems.length; i += 2) {
+          const row = imageItems.slice(i, i + 2);
+          const prepared = row.map(([label, raw]) => {
+            const data = String(raw);
+            const format = data.startsWith("/9j/") || data.startsWith("data:image/jpeg") ? "JPEG" : "PNG";
+            const props = pdf.getImageProperties(data);
+            const scale = Math.min(cellWidth / props.width, maxImageHeight / props.height);
+            return { label, data, format, width: props.width * scale, height: props.height * scale };
+          });
+          const rowHeight = Math.max(...prepared.map((item) => item.height));
+          ensureSpace(rowHeight + 43);
+          prepared.forEach((item, column) => {
+            const x = margin + column * (cellWidth + gap);
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(10);
+            pdf.text(item.label, x, y);
+            pdf.addImage(item.data, item.format, x + (cellWidth - item.width) / 2, y + 12, item.width, item.height, undefined, "FAST");
+          });
+          y += rowHeight + 38;
+        }
+        pdf.setFont("helvetica", "normal");
+      };
+
+      pdf.setFont("helvetica", "bold");
         pdf.setFontSize(11);
         pdf.text(label, margin, y);
         y += 10;
@@ -131,10 +162,7 @@ export default function ScanDetail() {
         13
       );
 
-      addBase64Image("Original MRI", scan.original_image_b64);
-      addBase64Image("Grad-CAM", scan.gradcam_b64);
-      addBase64Image("Integrated Gradients", scan.integrated_gradients_b64);
-      addBase64Image("SHAP", scan.shap_b64);
+      addImageGrid();
 
       addSectionTitle("Interpretation Notes");
       addWrappedText(
@@ -155,6 +183,16 @@ export default function ScanDetail() {
         8,
         12
       );
+
+      const totalPages = pdf.internal.getNumberOfPages();
+      for (let page = 1; page <= totalPages; page += 1) {
+        pdf.setPage(page);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        pdf.setTextColor(110, 120, 130);
+        pdf.text("NeuroScan XAI | Research prototype", margin, pageHeight - 24);
+        pdf.text(`Page ${page} of ${totalPages}`, pageWidth - margin, pageHeight - 24, { align: "right" });
+      }
 
       pdf.save(`neuroscan-xai-report-${id}.pdf`);
     } catch (exportError) {
