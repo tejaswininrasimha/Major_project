@@ -95,7 +95,7 @@ export default function ScanDetail() {
       const addImageGrid = () => {
         const gap = 16;
         const cellWidth = (contentWidth - gap) / 2;
-        const maxImageHeight = 205;
+        const maxImageHeight = 145;
         for (let i = 0; i < imageItems.length; i += 2) {
           const row = imageItems.slice(i, i + 2);
           const prepared = row.map(([label, raw]) => {
