@@ -120,16 +120,6 @@ export default function ScanDetail() {
       };
 
       pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(11);
-        pdf.text(label, margin, y);
-        y += 10;
-        const format = base64.startsWith("/9j/") ? "JPEG" : "PNG";
-        pdf.addImage(base64, format, margin, y, 230, 210, undefined, "FAST");
-        y += 225;
-        pdf.setFont("helvetica", "normal");
-      };
-
-      pdf.setFont("helvetica", "bold");
       pdf.setFontSize(20);
       pdf.text("NeuroScan XAI Report", margin, y);
       y += 18;
